@@ -47,13 +47,11 @@
                                 {{ other_participant.username|make_list|first|upper }}
                             </div>
                         {% endif %}
-                        {% if other_participant|is_online %}
-                            <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-light rounded-circle"></span>
-                        {% endif %}
+                        <span id="active-user-status-dot" class="user-online-dot position-absolute bottom-0 end-0 p-1 bg-success border border-light rounded-circle" data-user-id="{{ other_participant.id }}" {% if not other_participant|is_online %}style="display: none;"{% endif %}></span>
                     </div>
                     <div>
                         <h6 class="mb-0 fw-bold">{{ other_participant.username }}</h6>
-                        <small class="text-muted" style="font-size: 0.8rem;">
+                        <small id="active-user-status-text" class="text-muted" data-user-id="{{ other_participant.id }}" style="font-size: 0.8rem;">
                             {% if other_participant|is_online %}
                                 Active now
                             {% elif other_participant.profile.last_seen %}
@@ -73,7 +71,7 @@
             </div>
             
             <!-- Chat Messages -->
-            <div class="flex-grow-1 overflow-auto p-4 chat-container d-flex flex-column" id="chat-messages">
+            <div class="flex-grow-1 overflow-auto p-4 chat-container d-flex flex-column" id="chat-messages" data-conversation-id="{{ conversation.id }}">
                 {% for message in messages %}
                     {% if message.sender == user %}
                         <div class="d-flex justify-content-end mb-3 align-items-end">
@@ -98,21 +96,24 @@
                         </div>
                     {% endif %}
                 {% empty %}
-                    <div class="m-auto text-center text-muted">
+                    <div id="chat-empty-state" class="m-auto text-center text-muted">
                         <p class="mb-0">No messages yet.</p>
                         <small>Send a message to start the conversation.</small>
                     </div>
                 {% endfor %}
+                <div id="typing-indicator" class="d-none text-muted small mt-auto mb-2 align-self-start">
+                    <span id="typing-username" class="fw-semibold"></span> is typing...
+                </div>
             </div>
             
             <!-- Chat Input Form -->
             <div class="p-3 bg-white border-top">
-                <form method="post" class="d-flex align-items-center position-relative">
+                <form id="chat-form" method="post" class="d-flex align-items-center position-relative">
                     {% csrf_token %}
                     <div class="position-absolute start-0 ms-3 d-flex gap-2 text-secondary fs-5 z-index-1">
                         <i class="bi bi-emoji-smile cursor-pointer"></i>
                     </div>
-                    <input type="text" name="content" class="form-control rounded-pill border py-2 ps-5 pe-5 chat-input" placeholder="Message..." required autocomplete="off" autofocus>
+                    <input type="text" name="content" id="chat-message-input" class="form-control rounded-pill border py-2 ps-5 pe-5 chat-input" placeholder="Message..." required autocomplete="off" autofocus>
                     <div class="position-absolute end-0 me-2 z-index-1">
                         <button type="submit" class="btn btn-link text-primary fw-bold text-decoration-none">Send</button>
                     </div>

@@ -20,7 +20,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body id="body" class="{% if dark_mode == 'true' %}dark-mode{% endif %}">
+<body id="body" class="{% if dark_mode == 'true' %}dark-mode{% endif %}" data-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}" data-user-id="{% if user.is_authenticated %}{{ user.id }}{% endif %}">
 
     {% include 'includes/navbar.html' %}
     
@@ -62,6 +62,9 @@
     
     <!-- Custom JS -->
     <script src="{% static 'js/main.js' %}"></script>
+    {% if user.is_authenticated %}
+    <script src="{% static 'js/chat.js' %}"></script>
+    {% endif %}
     
     {% block extra_js %}
     {% endblock %}

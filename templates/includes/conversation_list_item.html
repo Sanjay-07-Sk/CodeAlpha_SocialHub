@@ -1,5 +1,5 @@
 {% load core_tags %}
-<a href="{% url 'conversation_detail' conv.id %}" class="list-group-item list-group-item-action py-3 border-bottom-0 {% if request.resolver_match.kwargs.pk == conv.id|stringformat:'s' %}bg-white shadow-sm{% else %}bg-transparent{% endif %}">
+<a id="conv-list-item-{{ conv.id }}" href="{% url 'conversation_detail' conv.id %}" class="list-group-item list-group-item-action py-3 border-bottom-0 {% if request.resolver_match.kwargs.pk == conv.id|stringformat:'s' %}bg-white shadow-sm{% else %}bg-transparent{% endif %}">
     <div class="d-flex align-items-center">
         <div class="position-relative me-3">
             {% if other.profile.profile_picture %}
@@ -10,29 +10,27 @@
                 </div>
             {% endif %}
             
-            {% if other|is_online %}
-                <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-light rounded-circle"></span>
-            {% endif %}
+            <span class="user-online-dot position-absolute bottom-0 end-0 p-1 bg-success border border-light rounded-circle" data-user-id="{{ other.id }}" {% if not other|is_online %}style="display: none;"{% endif %}></span>
         </div>
         
         <div class="flex-grow-1 overflow-hidden">
             <div class="d-flex justify-content-between align-items-center mb-1">
                 <h6 class="mb-0 fw-bold text-truncate">{{ other.username }}</h6>
                 {% with unread=conv|unread_count:request.user %}
-                    {% if unread > 0 %}
-                        <span class="badge bg-primary rounded-pill">{{ unread }}</span>
-                    {% endif %}
+                    <span class="conv-unread-badge badge bg-primary rounded-pill" data-conversation-id="{{ conv.id }}" {% if not unread or unread == 0 %}style="display: none;"{% endif %}>{{ unread|default:"" }}</span>
                 {% endwith %}
             </div>
             {% with last_msg=conv.get_last_message %}
-                {% if last_msg %}
-                    <p class="mb-0 small text-truncate {% if last_msg.sender != user and not last_msg.is_read %}fw-bold text-dark{% else %}text-muted{% endif %}">
+                <p class="conv-last-msg-text mb-0 small text-truncate {% if last_msg.sender != user and not last_msg.is_read %}fw-bold text-dark{% else %}text-muted{% endif %}" data-conversation-id="{{ conv.id }}">
+                    {% if last_msg %}
                         {% if last_msg.sender == user %}You: {% endif %}{{ last_msg.content }}
-                    </p>
-                    <small class="text-muted" style="font-size: 0.7rem;">{{ last_msg.timestamp|time_ago }}</small>
-                {% else %}
-                    <p class="mb-0 small text-muted fst-italic">Start a conversation</p>
-                {% endif %}
+                    {% else %}
+                        <span class="fst-italic">Start a conversation</span>
+                    {% endif %}
+                </p>
+                <small class="conv-last-msg-time text-muted" style="font-size: 0.7rem;" data-conversation-id="{{ conv.id }}">
+                    {% if last_msg %}{{ last_msg.timestamp|time_ago }}{% endif %}
+                </small>
             {% endwith %}
         </div>
     </div>

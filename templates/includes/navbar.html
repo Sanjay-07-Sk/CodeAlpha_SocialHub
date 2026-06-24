@@ -31,11 +31,9 @@
                     <li class="nav-item">
                         <a class="nav-link nav-icon px-3 position-relative" href="{% url 'inbox' %}" title="Messages">
                             <i class="bi bi-send fs-5"></i>
-                            {% if unread_messages_count > 0 %}
-                                <span class="position-absolute top-25 start-75 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
-                                    {{ unread_messages_count }}
-                                </span>
-                            {% endif %}
+                            <span id="navbar-unread-badge" class="position-absolute top-25 start-75 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; {% if not unread_messages_count or unread_messages_count == 0 %}display: none;{% endif %}">
+                                {{ unread_messages_count|default:"" }}
+                            </span>
                             <span class="d-lg-none ms-2">Messages</span>
                         </a>
                     </li>
