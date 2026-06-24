@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - SocialHub{% endblock %}
+
+{% block content %}
+<div class="feed-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0">Your Feed</h3>
+    </div>
+    
+    <!-- Quick Create Post -->
+    <div class="card card-glass shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body p-3 d-flex align-items-center gap-3">
+            {% if user.profile.profile_picture %}
+                <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}" class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover;">
+            {% else %}
+                <div class="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center" style="width: 48px; height: 48px; font-size: 1.2rem;">
+                    {{ user.username|make_list|first|upper }}
+                </div>
+            {% endif %}
+            <a href="{% url 'post_create' %}" class="text-decoration-none bg-light text-muted border rounded-pill px-4 py-2 w-100 fs-5" style="cursor: text;">
+                What's on your mind, {{ user.username }}?
+            </a>
+            <a href="{% url 'post_create' %}" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                <i class="bi bi-image fs-5"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Posts Feed -->
+    <div class="posts-feed">
+        {% for post in posts %}
+            {% include 'includes/post_card.html' with post=post %}
+        {% empty %}
+            <div class="text-center py-5 my-5">
+                <div class="display-1 text-muted mb-3">
+                    <i class="bi bi-people"></i>
+                </div>
+                <h4 class="fw-bold">Your feed is empty</h4>
+                <p class="text-muted mb-4">Follow users to see their posts here, or create your own post!</p>
+                <a href="{% url 'explore' %}" class="btn btn-primary rounded-pill px-4">Discover Users</a>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-4 mb-5">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link rounded-start-pill px-3" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link rounded-start-pill px-3">&laquo;</span>
+                </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link bg-gradient-primary border-0">{{ num }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item"><a class="page-link text-primary" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link rounded-end-pill px-3" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link rounded-end-pill px-3">&raquo;</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

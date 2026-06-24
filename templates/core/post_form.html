@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if form.instance.pk %}Edit Post{% else %}Create Post{% endif %} - SocialHub
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card card-glass border-0 shadow-sm rounded-4">
+            <div class="card-header bg-transparent border-bottom p-4">
+                <h4 class="fw-bold mb-0">
+                    {% if form.instance.pk %}
+                        <i class="bi bi-pencil-square text-primary me-2"></i>Edit Post
+                    {% else %}
+                        <i class="bi bi-plus-square-fill text-primary me-2"></i>Create New Post
+                    {% endif %}
+                </h4>
+            </div>
+            
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data" id="post-form">
+                    {% csrf_token %}
+                    
+                    <!-- Content Field -->
+                    <div class="mb-4">
+                        <label for="{{ form.content.id_for_label }}" class="form-label fw-bold d-none">Content</label>
+                        {{ form.content }}
+                        {% if form.content.errors %}
+                            <div class="text-danger small mt-1">{{ form.content.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Image Field -->
+                    <div class="mb-4">
+                        <label for="{{ form.image.id_for_label }}" class="form-label fw-medium text-secondary">
+                            <i class="bi bi-image me-1"></i> Add an image
+                        </label>
+                        {{ form.image }}
+                        {% if form.image.errors %}
+                            <div class="text-danger small mt-1">{{ form.image.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Image Preview Area -->
+                    <div id="image-preview-container" class="mb-4 rounded-3 overflow-hidden border d-none text-center bg-dark" style="max-height: 400px; display: flex; align-items: center; justify-content: center;">
+                        <img id="image-preview" src="" alt="Preview" class="img-fluid" style="object-fit: contain; max-height: 400px;">
+                    </div>
+                    
+                    {% if form.instance.image %}
+                        <div id="current-image-container" class="mb-4 rounded-3 overflow-hidden border text-center bg-dark" style="max-height: 400px; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ form.instance.image.url }}" alt="Current image" class="img-fluid" style="object-fit: contain; max-height: 400px;">
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-end gap-2 mt-5">
+                        <a href="{% if form.instance.pk %}{% url 'post_detail' form.instance.pk %}{% else %}{% url 'home' %}{% endif %}" class="btn btn-light rounded-pill px-4">Cancel</a>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 btn-gradient fw-bold">
+                            {% if form.instance.pk %}Update Post{% else %}Share Post{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

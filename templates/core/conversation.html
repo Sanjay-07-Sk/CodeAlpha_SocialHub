@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load core_tags %}
+
+{% block title %}Chat with {{ other_participant.username }} - SocialHub{% endblock %}
+
+{% block content %}
+<div class="card card-glass border-0 shadow-sm rounded-4 overflow-hidden" style="height: calc(100vh - 120px);">
+    <div class="row g-0 h-100">
+        <!-- Sidebar: Conversations List (Hidden on mobile) -->
+        <div class="col-md-4 col-lg-3 border-end h-100 d-none d-md-flex flex-column bg-light">
+            <div class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">{{ user.username }}</h5>
+                <a href="{% url 'inbox' %}" class="text-dark"><i class="bi bi-pencil-square fs-5 text-primary"></i></a>
+            </div>
+            
+            <div class="overflow-auto h-100">
+                <div class="list-group list-group-flush">
+                    {% for conv in user.conversations.all %}
+                        {% with other=conv.participants.all|dictsort:"id"|first %}
+                            {% if other == user %}
+                                {% with other=conv.participants.all|dictsortreversed:"id"|first %}
+                                    {% include 'includes/conversation_list_item.html' with other=other conv=conv %}
+                                {% endwith %}
+                            {% else %}
+                                {% include 'includes/conversation_list_item.html' with other=other conv=conv %}
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main: Chat Window -->
+        <div class="col-md-8 col-lg-9 h-100 d-flex flex-column bg-white">
+            <!-- Chat Header -->
+            <div class="p-3 border-bottom d-flex align-items-center bg-white" style="z-index: 10;">
+                <a href="{% url 'inbox' %}" class="d-md-none me-3 text-dark text-decoration-none">
+                    <i class="bi bi-arrow-left fs-4"></i>
+                </a>
+                
+                <a href="{% url 'profile' other_participant.username %}" class="text-decoration-none text-dark d-flex align-items-center">
+                    <div class="position-relative me-3">
+                        {% if other_participant.profile.profile_picture %}
+                            <img src="{{ other_participant.profile.profile_picture.url }}" class="rounded-circle" style="width: 44px; height: 44px; object-fit: cover;">
+                        {% else %}
+                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                                {{ other_participant.username|make_list|first|upper }}
+                            </div>
+                        {% endif %}
+                        {% if other_participant|is_online %}
+                            <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-light rounded-circle"></span>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold">{{ other_participant.username }}</h6>
+                        <small class="text-muted" style="font-size: 0.8rem;">
+                            {% if other_participant|is_online %}
+                                Active now
+                            {% elif other_participant.profile.last_seen %}
+                                Active {{ other_participant.profile.last_seen|time_ago }}
+                            {% else %}
+                                Offline
+                            {% endif %}
+                        </small>
+                    </div>
+                </a>
+                
+                <div class="ms-auto">
+                    <i class="bi bi-telephone fs-5 me-3 text-secondary"></i>
+                    <i class="bi bi-camera-video fs-5 me-3 text-secondary"></i>
+                    <i class="bi bi-info-circle fs-5 text-secondary"></i>
+                </div>
+            </div>
+            
+            <!-- Chat Messages -->
+            <div class="flex-grow-1 overflow-auto p-4 chat-container d-flex flex-column" id="chat-messages">
+                {% for message in messages %}
+                    {% if message.sender == user %}
+                        <div class="d-flex justify-content-end mb-3 align-items-end">
+                            <div class="message-bubble sent bg-gradient-primary text-white rounded-4 rounded-bottom-end-0 py-2 px-3 shadow-sm" style="max-width: 75%;">
+                                {{ message.content|linebreaksbr }}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="d-flex justify-content-start mb-3 align-items-end">
+                            <a href="{% url 'profile' message.sender.username %}" class="me-2">
+                                {% if message.sender.profile.profile_picture %}
+                                    <img src="{{ message.sender.profile.profile_picture.url }}" class="rounded-circle" style="width: 28px; height: 28px; object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.7rem;">
+                                        {{ message.sender.username|make_list|first|upper }}
+                                    </div>
+                                {% endif %}
+                            </a>
+                            <div class="message-bubble received bg-light text-dark rounded-4 rounded-bottom-start-0 py-2 px-3 shadow-sm border" style="max-width: 75%;">
+                                {{ message.content|linebreaksbr }}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% empty %}
+                    <div class="m-auto text-center text-muted">
+                        <p class="mb-0">No messages yet.</p>
+                        <small>Send a message to start the conversation.</small>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Chat Input Form -->
+            <div class="p-3 bg-white border-top">
+                <form method="post" class="d-flex align-items-center position-relative">
+                    {% csrf_token %}
+                    <div class="position-absolute start-0 ms-3 d-flex gap-2 text-secondary fs-5 z-index-1">
+                        <i class="bi bi-emoji-smile cursor-pointer"></i>
+                    </div>
+                    <input type="text" name="content" class="form-control rounded-pill border py-2 ps-5 pe-5 chat-input" placeholder="Message..." required autocomplete="off" autofocus>
+                    <div class="position-absolute end-0 me-2 z-index-1">
+                        <button type="submit" class="btn btn-link text-primary fw-bold text-decoration-none">Send</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Scroll to bottom of chat
+        const chatContainer = document.getElementById('chat-messages');
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    });
+</script>
+{% endblock %}
+{% endblock %}

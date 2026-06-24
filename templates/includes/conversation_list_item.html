@@ -1,0 +1,39 @@
+{% load core_tags %}
+<a href="{% url 'conversation_detail' conv.id %}" class="list-group-item list-group-item-action py-3 border-bottom-0 {% if request.resolver_match.kwargs.pk == conv.id|stringformat:'s' %}bg-white shadow-sm{% else %}bg-transparent{% endif %}">
+    <div class="d-flex align-items-center">
+        <div class="position-relative me-3">
+            {% if other.profile.profile_picture %}
+                <img src="{{ other.profile.profile_picture.url }}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+            {% else %}
+                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                    {{ other.username|make_list|first|upper }}
+                </div>
+            {% endif %}
+            
+            {% if other|is_online %}
+                <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-light rounded-circle"></span>
+            {% endif %}
+        </div>
+        
+        <div class="flex-grow-1 overflow-hidden">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <h6 class="mb-0 fw-bold text-truncate">{{ other.username }}</h6>
+                {% with unread=conv|unread_count:request.user %}
+                    {% if unread > 0 %}
+                        <span class="badge bg-primary rounded-pill">{{ unread }}</span>
+                    {% endif %}
+                {% endwith %}
+            </div>
+            {% with last_msg=conv.get_last_message %}
+                {% if last_msg %}
+                    <p class="mb-0 small text-truncate {% if last_msg.sender != user and not last_msg.is_read %}fw-bold text-dark{% else %}text-muted{% endif %}">
+                        {% if last_msg.sender == user %}You: {% endif %}{{ last_msg.content }}
+                    </p>
+                    <small class="text-muted" style="font-size: 0.7rem;">{{ last_msg.timestamp|time_ago }}</small>
+                {% else %}
+                    <p class="mb-0 small text-muted fst-italic">Start a conversation</p>
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+</a>

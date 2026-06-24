@@ -1,0 +1,49 @@
+<div class="sidebar position-fixed">
+    <ul class="nav flex-column sidebar-nav">
+        <li class="nav-item mb-2">
+            <a class="nav-link sidebar-link d-flex align-items-center fs-5 p-3 rounded {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                <i class="bi bi-house-door{% if request.resolver_match.url_name == 'home' %}-fill{% endif %} me-3 fs-4"></i>
+                <span class="fw-medium">Home</span>
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a class="nav-link sidebar-link d-flex align-items-center fs-5 p-3 rounded {% if request.resolver_match.url_name == 'explore' %}active{% endif %}" href="{% url 'explore' %}">
+                <i class="bi bi-compass{% if request.resolver_match.url_name == 'explore' %}-fill{% endif %} me-3 fs-4"></i>
+                <span class="fw-medium">Explore</span>
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a class="nav-link sidebar-link d-flex align-items-center fs-5 p-3 rounded {% if request.resolver_match.url_name == 'inbox' %}active{% endif %}" href="{% url 'inbox' %}">
+                <i class="bi bi-send{% if request.resolver_match.url_name == 'inbox' %}-fill{% endif %} me-3 fs-4"></i>
+                <span class="fw-medium">Messages</span>
+                {% if unread_messages_count > 0 %}
+                    <span class="badge bg-danger rounded-pill ms-auto" style="font-size: 0.75rem;">{{ unread_messages_count }}</span>
+                {% endif %}
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a class="nav-link sidebar-link d-flex align-items-center fs-5 p-3 rounded {% if request.resolver_match.url_name == 'search' %}active{% endif %}" href="{% url 'search' %}">
+                <i class="bi bi-search{% if request.resolver_match.url_name == 'search' %}-fill{% endif %} me-3 fs-4"></i>
+                <span class="fw-medium">Search</span>
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a class="nav-link sidebar-link d-flex align-items-center fs-5 p-3 rounded {% if request.resolver_match.url_name == 'post_create' %}active{% endif %}" href="{% url 'post_create' %}">
+                <i class="bi bi-plus-square{% if request.resolver_match.url_name == 'post_create' %}-fill{% endif %} me-3 fs-4"></i>
+                <span class="fw-medium">Create</span>
+            </a>
+        </li>
+        {% if user.is_authenticated %}
+        <li class="nav-item mb-2">
+            <a class="nav-link sidebar-link d-flex align-items-center fs-5 p-3 rounded {% if request.resolver_match.url_name == 'profile' and request.resolver_match.kwargs.username == request.user.username %}active{% endif %}" href="{% url 'profile' request.user.username %}">
+                {% if user.profile.profile_picture %}
+                    <img src="{{ user.profile.profile_picture.url }}" alt="Profile" class="avatar-sm rounded-circle me-3" style="width: 24px; height: 24px; object-fit: cover; border: 2px solid transparent;">
+                {% else %}
+                    <i class="bi bi-person{% if request.resolver_match.url_name == 'profile' and request.resolver_match.kwargs.username == request.user.username %}-fill{% endif %} me-3 fs-4"></i>
+                {% endif %}
+                <span class="fw-medium">Profile</span>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</div>

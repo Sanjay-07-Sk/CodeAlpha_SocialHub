@@ -1,0 +1,74 @@
+{% load core_tags %}
+
+<div class="card card-glass mb-4 border-0 shadow-sm rounded-4 post-card">
+    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center p-3">
+        <div class="d-flex align-items-center">
+            <a href="{% url 'profile' post.author.username %}" class="text-decoration-none">
+                {% if post.author.profile.profile_picture %}
+                    <img src="{{ post.author.profile.profile_picture.url }}" alt="{{ post.author.username }}" class="rounded-circle avatar-sm border border-2 border-primary me-2 p-1" style="width: 40px; height: 40px; object-fit: cover;">
+                {% else %}
+                    <div class="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-2" style="width: 40px; height: 40px;">
+                        {{ post.author.username|make_list|first|upper }}
+                    </div>
+                {% endif %}
+            </a>
+            <div>
+                <a href="{% url 'profile' post.author.username %}" class="text-decoration-none text-primary fw-bold">{{ post.author.username }}</a>
+                <div class="text-muted small" style="font-size: 0.8rem;">{{ post.created_at|time_ago }}</div>
+            </div>
+        </div>
+        
+        {% if post.author == request.user %}
+        <div class="dropdown">
+            <button class="btn btn-sm btn-link text-secondary text-decoration-none fs-5" type="button" id="dropdownMenuButton{{ post.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-three-dots"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="dropdownMenuButton{{ post.id }}">
+                <li><a class="dropdown-item" href="{% url 'post_edit' post.id %}"><i class="bi bi-pencil me-2"></i>Edit</a></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'post_delete' post.id %}"><i class="bi bi-trash me-2"></i>Delete</a></li>
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="card-body p-0">
+        <p class="px-3 mb-2 {% if not post.image %}fs-5{% endif %}">{{ post.content|linebreaksbr }}</p>
+        
+        {% if post.image %}
+            <div class="post-image-container bg-dark text-center" style="max-height: 600px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                <img src="{{ post.image.url }}" class="img-fluid w-100" alt="Post image" style="object-fit: cover;">
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="card-footer bg-transparent border-0 p-3 pt-2">
+        <div class="d-flex align-items-center gap-3 fs-4 mb-2">
+            <!-- Like Button -->
+            <button class="btn btn-link p-0 text-decoration-none like-btn {% if post|is_liked_by:request.user %}liked{% endif %}" data-post-id="{{ post.id }}">
+                <i class="bi {% if post|is_liked_by:request.user %}bi-heart-fill text-danger{% else %}bi-heart text-secondary{% endif %} like-icon transition"></i>
+            </button>
+            
+            <!-- Comment Button -->
+            <a href="{% url 'post_detail' post.id %}" class="btn btn-link p-0 text-decoration-none text-secondary">
+                <i class="bi bi-chat"></i>
+            </a>
+            
+            <!-- Share Button -->
+            <button class="btn btn-link p-0 text-decoration-none text-secondary">
+                <i class="bi bi-send"></i>
+            </button>
+        </div>
+        
+        <div class="fw-bold mb-1">
+            <span class="likes-count">{{ post.total_likes }}</span> likes
+        </div>
+        
+        {% if post.total_comments > 0 %}
+            <div class="mb-1">
+                <a href="{% url 'post_detail' post.id %}" class="text-secondary text-decoration-none small">
+                    View all {{ post.total_comments }} comments
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>

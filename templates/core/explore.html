@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Explore - SocialHub{% endblock %}
+
+{% block content %}
+<div class="explore-container">
+    <div class="d-flex align-items-center mb-4">
+        <i class="bi bi-compass-fill fs-2 text-primary me-3"></i>
+        <h3 class="fw-bold mb-0">Explore</h3>
+    </div>
+    
+    <!-- Posts Grid/Feed -->
+    <div class="posts-feed">
+        {% for post in posts %}
+            {% include 'includes/post_card.html' with post=post %}
+        {% empty %}
+            <div class="text-center py-5 my-5">
+                <div class="display-1 text-muted mb-3">
+                    <i class="bi bi-camera"></i>
+                </div>
+                <h4 class="fw-bold">No posts yet</h4>
+                <p class="text-muted mb-4">Be the first to share something with the community!</p>
+                <a href="{% url 'post_create' %}" class="btn btn-primary rounded-pill px-4">Create Post</a>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-4 mb-5">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link rounded-start-pill px-3" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link rounded-start-pill px-3">&laquo;</span>
+                </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link bg-gradient-primary border-0">{{ num }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item"><a class="page-link text-primary" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link rounded-end-pill px-3" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link rounded-end-pill px-3">&raquo;</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
